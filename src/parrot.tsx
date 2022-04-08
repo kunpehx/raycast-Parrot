@@ -10,6 +10,7 @@ import {
     removeDetectCopyModeSymbol,
     detectIsUppercaseCopyOrLowerCaseCopy,
 } from "./shared.func"
+import {isNotEmpty, readtext} from "./utils";
 
 let fetchResultStateCode = "-1"
 let isUserChosenTargetLanguage = false
@@ -44,7 +45,12 @@ export default function () {
     const [copyModeState, updateCopyModeState] = useState<COPY_TYPE>(COPY_TYPE.Normal)
 
     useEffect(() => {
-        if (!inputState) return // Prevent when first mounted run
+        if (!inputState) {
+            if(preferences.isSelectionPaste) {
+                search()
+            }
+            return
+        } // Prevent when first mounted run
 
         updateLoadingState(true)
         clearTimeout(delayUpdateTargetLanguageTimer)
@@ -82,23 +88,31 @@ export default function () {
         })
     }, [inputState, translateTargetLanguage])
 
+    async function search() {
+       const txt = await readtext();
+        if (txt.length != 0) {
+            onSearch(txt)
+        }
+    }
     function ListDetail() {
+        // console.log("xxxx88",fetchResultStateCode,translateResultState)
         if (fetchResultStateCode === "-1") return null
 
-        if (fetchResultStateCode === "0") {
+
+        if (fetchResultStateCode === "0" || fetchResultStateCode == "207") {
             return (
                 <Fragment>
                     {translateResultState?.map((result, idx) => {
                         return (
-                            <List.Section key={idx} title={result.type}>
+                            <List.Section key={idx} title={result.type} subtitle={result.hint}>
                                 {result.children?.map((item) => {
                                     return (
                                         <List.Item
                                             key={item.key}
-                                            icon={Icon.Text}
+                                            icon={{ source: item.icon, tintColor: item.color }}
                                             title={item.title}
-                                            subtitle={item?.subtitle}
-                                            accessoryTitle={item.phonetic}
+                                            subtitle={item?.subtitle ? item?.subtitle : item.phonetic}
+                                            accessoryTitle={item.accessoryTitle ? item.accessoryTitle: result.type == "Translate" ? result.lang:""}
                                             actions={
                                                 <ListActionPanel
                                                     queryText={inputState}
@@ -139,7 +153,7 @@ export default function () {
             />
         )
     }
-    function onInputChangeEvt(queryText: string) {
+    function onSearch(queryText: string) {
         updateLoadingState(false)
         clearTimeout(delayFetchTranslateAPITimer)
 
@@ -154,7 +168,7 @@ export default function () {
 
                     return freshCopyModeState
                 })
-            }, 800)
+            }, 200)
             return
         }
 
@@ -165,7 +179,7 @@ export default function () {
         <List
             isLoading={isLoadingState}
             searchBarPlaceholder={"Translate text"}
-            onSearchTextChange={onInputChangeEvt}
+            onSearchTextChange={onSearch}
             actions={
                 <ActionPanel>
                     <ActionFeedback />

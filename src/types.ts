@@ -1,4 +1,5 @@
 import { COPY_TYPE } from "./consts"
+import {Color, Icon} from "@raycast/api";
 
 export interface ITranslateResult {
     l: string
@@ -13,12 +14,17 @@ export interface ITranslateResult {
 export interface ITranslateReformatResult {
     type?: string
     children?: ITranslateReformatResultItem[]
+    hint?: string
+    lang?: string
 }
 
 export interface ITranslateReformatResultItem {
     key: string
     phonetic?: string
     title: string
+    accessoryTitle?:string,
+    icon: Icon
+    color: Color
     subtitle?: string
 }
 
@@ -40,6 +46,7 @@ export interface IPreferences {
     appId: string
     appKey: string
     isAutomaticPaste: boolean
+    isSelectionPaste: boolean
 }
 
 export interface IListItemActionPanelItem {

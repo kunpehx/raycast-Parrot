@@ -1,8 +1,8 @@
 import axios from "axios"
 import crypto from "crypto"
 import querystring from "node:querystring"
-import { getPreferenceValues } from "@raycast/api"
-import { COPY_TYPE, LANGUAGE_LIST } from "./consts"
+import {Color, getPreferenceValues, Icon} from "@raycast/api"
+import {COPY_TYPE, LANGUAGE_LIST} from "./consts"
 
 import {
     ILanguageListItem,
@@ -39,7 +39,6 @@ export function reformatCopyTextArray(data: string[], limitResultAmount = 10): I
         finalData = data.slice(0, limitResultAmount - 1)
         finalData.push(data[dataLength])
     }
-
     const finalDataLength = finalData.length - 1
     return finalData.map((text, idx) => {
         return {
@@ -53,11 +52,16 @@ export function reformatTranslateResult(data: ITranslateResult): ITranslateRefor
     const reformatData: ITranslateReformatResult[] = []
 
     reformatData.push({
+        type: "Translate",
+        hint: "翻译",
+        lang: defineLanguage(data.l),
         children: data.translation?.map((text, idx) => {
             return {
                 title: text,
                 key: text + idx,
+                icon: Icon.Text,
                 phonetic: data.basic?.phonetic,
+                color:Color.Magenta
             }
         }),
     })
@@ -68,19 +72,56 @@ export function reformatTranslateResult(data: ITranslateResult): ITranslateRefor
         data.basic?.explains[0] === data?.translation[0] && data.basic.explains.shift()
     }
 
+    if (data.basic?.phonetic && data.basic?.["uk-phonetic"] && data.basic?.["us-phonetic"]) {
+        reformatData.push({
+            type: "Phonetic",
+            hint: "音标",
+            children: data.translation?.map((text, idx) => {
+                return {
+                    title: data.basic?.["uk-phonetic"]+"",
+                    key: text + idx,
+                    icon: Icon.Message,
+                    color: Color.Blue,
+                    accessoryTitle: "英国",
+                }
+            }),
+        });
+        reformatData.push({
+            children: data.translation?.map((text, idx) => {
+                return {
+                    title: data.basic?.["us-phonetic"]+"",
+                    key: text + idx,
+                    icon: Icon.Message,
+                    color: Color.Blue,
+                    accessoryTitle: "美国",
+                }
+            }),
+        });
+    }
+
     reformatData.push({
+        type: "Detail",
+        hint: "详细释义",
         children: data.basic?.explains?.map((text, idx) => {
-            return { title: text, key: text + idx }
+            return {
+                title: text,
+                key: text + idx ,
+                icon:Icon.TextDocument,
+                color: Color.Red
+            }
         }),
     })
 
     reformatData.push({
-        type: "Other Results",
+        type: "Web Translate",
+        hint: "网络翻译",
         children: data.web?.map((webResultItem, idx) => {
             return {
                 title: webResultItem.key,
                 key: webResultItem.key + idx,
                 subtitle: useSymbolSegmentationArrayText(webResultItem.value),
+                icon:Icon.Globe,
+                color: Color.Orange
             }
         }),
     })
@@ -144,4 +185,23 @@ export function removeDetectCopyModeSymbol(queryText: string, copyMode: COPY_TYP
 
 export function useSymbolSegmentationArrayText(textArray: string[]): string {
     return textArray.join("；")
+}
+
+export function defineLanguage(l:string):string {
+    let fromLanguage = ""
+    let toLanguage = ""
+    let language = ""
+    const [from, to] = l.split("2") // en2zh
+
+
+    LANGUAGE_LIST.map((item,index) => {
+        if (item.languageId == from) {
+            fromLanguage = item.languageTitle
+        }
+        if (item.languageId == to) {
+            toLanguage += item.languageTitle
+        }
+    })
+    language = fromLanguage + " to " + toLanguage
+    return language
 }

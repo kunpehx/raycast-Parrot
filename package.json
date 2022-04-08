@@ -264,13 +264,22 @@
             "default": "MIbu7DGsOPdbatL9KmgycGx0qDOzQWCM"
         },
         {
-            "title": "Others",
+            "title": "Clipboard",
             "name": "isAutomaticPaste",
             "type": "checkbox",
             "label": "Automatic Paste",
             "required": false,
             "default": true,
             "description": "When you copy automatic paste to focus"
+        },
+        {
+        "title": "Others",
+        "name": "isSelectionPaste",
+        "type": "checkbox",
+        "label": "Translate Selection",
+        "required": false,
+        "default": true,
+        "description": "When you selection text"
         }
     ],
     "dependencies": {
