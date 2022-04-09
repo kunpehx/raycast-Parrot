@@ -50,6 +50,7 @@ export function reformatCopyTextArray(data: string[], limitResultAmount = 10): I
 
 export function reformatTranslateResult(data: ITranslateResult): ITranslateReformatResult[] {
     const reformatData: ITranslateReformatResult[] = []
+    console.log(JSON.stringify(data))
 
     reformatData.push({
         type: "Translate",
@@ -60,7 +61,7 @@ export function reformatTranslateResult(data: ITranslateResult): ITranslateRefor
                 title: text,
                 key: text + idx,
                 icon: Icon.Text,
-                phonetic: data.basic?.phonetic,
+                phonetic: data.basic?.phonetic ? "["+data.basic?.phonetic+"]" : "",
                 color:Color.Magenta
             }
         }),
