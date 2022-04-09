@@ -11,6 +11,7 @@ import {
     ITranslateReformatResult,
     ITranslateResult,
 } from "./types"
+import qs from "querystring";
 
 export function truncate(string: string, length = 16, separator = "..") {
     if (string.length <= length) return string
@@ -132,33 +133,26 @@ export function reformatTranslateResult(data: ITranslateResult): ITranslateRefor
 
 // API Document https://ai.youdao.com/DOCSIRMA/html/自然语言翻译/API文档/文本翻译服务/文本翻译服务-API文档.html
 export function requestYoudaoAPI(queryText: string, targetLanguage: string): Promise<any> {
-    function truncate(q: string): string {
-        const len = q.length
-        return len <= 20 ? q : q.substring(0, 10) + len + q.substring(len - 10, len)
-    }
-
     const preferences: IPreferences = getPreferenceValues()
     const APP_ID = preferences.appId
     const APP_KEY = preferences.appKey
 
-    const sha256 = crypto.createHash("sha256")
-    const timestamp = Math.round(new Date().getTime() / 1000)
-    const salt = timestamp
-    const sha256Content = APP_ID + truncate(queryText) + salt + timestamp + APP_KEY
-    const sign = sha256.update(sha256Content).digest("hex")
+    const q = Buffer.from(queryText).toString();
+    const salt = Date.now();
+    const sign = generateSign(q, salt, APP_ID, APP_KEY);
+    const queryParam = querystring.stringify({
+        q: q,
+        appKey: APP_ID,
+        from: "auto",
+        to: targetLanguage,
+        salt,
+        sign }
+    );
+
 
     return axios.post(
         "https://openapi.youdao.com/api",
-        querystring.stringify({
-            sign,
-            salt,
-            from: "auto",
-            signType: "v3",
-            q: queryText,
-            appKey: APP_ID,
-            curtime: timestamp,
-            to: targetLanguage,
-        })
+        queryParam
     )
 }
 
@@ -205,4 +199,12 @@ export function defineLanguage(l:string):string {
     })
     language = fromLanguage + " to " + toLanguage
     return language
+}
+
+// API Signature
+function generateSign(content: string, salt: number, app_key: string, app_secret: string) {
+    const md5 = crypto.createHash("md5");
+    md5.update(app_key + content + salt + app_secret);
+    const cipher = md5.digest("hex");
+    return cipher.slice(0, 32).toUpperCase();
 }

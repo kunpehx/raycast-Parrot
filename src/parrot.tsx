@@ -1,7 +1,7 @@
 import { COPY_TYPE } from "./consts"
 import { Fragment, useEffect, useState } from "react"
 import { ActionFeedback, ListActionPanel } from "./components"
-import { Action, ActionPanel, Color, getPreferenceValues, Icon, List } from "@raycast/api"
+import {Action, ActionPanel, Color, confirmAlert, getPreferenceValues, Icon, List, showToast} from "@raycast/api"
 import { ILanguageListItem, IPreferences, ITranslateReformatResult, ITranslateResult } from "./types"
 import {
     requestYoudaoAPI,
@@ -95,11 +95,16 @@ export default function () {
         }
     }
     function ListDetail() {
+
         // console.log("xxxx88",fetchResultStateCode,translateResultState)
         if (fetchResultStateCode === "-1") return null
 
 
         if (fetchResultStateCode === "0" || fetchResultStateCode == "207") {
+            if (fetchResultStateCode === "207") {
+               console.log(fetchResultStateCode)
+                showToast({ title: "提示:"+fetchResultStateCode, message: JSON.stringify(translateResultState)});
+            }
             return (
                 <Fragment>
                     {translateResultState?.map((result, idx) => {
@@ -154,8 +159,8 @@ export default function () {
         )
     }
     function onSearch(queryText: string) {
-        updateLoadingState(false)
-        clearTimeout(delayFetchTranslateAPITimer)
+        // updateLoadingState(false)
+        // clearTimeout(delayFetchTranslateAPITimer)
 
         const text = queryText.trim()
         if (text.length > 0) {
@@ -168,7 +173,7 @@ export default function () {
 
                     return freshCopyModeState
                 })
-            }, 200)
+            }, 800)
             return
         }
 
@@ -178,7 +183,7 @@ export default function () {
     return (
         <List
             isLoading={isLoadingState}
-            searchBarPlaceholder={"Translate text"}
+            searchBarPlaceholder={"Type text"}
             onSearchTextChange={onSearch}
             actions={
                 <ActionPanel>
