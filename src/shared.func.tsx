@@ -51,8 +51,6 @@ export function reformatCopyTextArray(data: string[], limitResultAmount = 10): I
 
 export function reformatTranslateResult(data: ITranslateResult): ITranslateReformatResult[] {
     const reformatData: ITranslateReformatResult[] = []
-    console.log(JSON.stringify(data))
-
     reformatData.push({
         type: "Translate",
         hint: "翻译",
