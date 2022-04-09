@@ -131,9 +131,9 @@ export function reformatTranslateResult(data: ITranslateResult): ITranslateRefor
         hint: "网络翻译",
         children: data.web?.map((webResultItem, idx) => {
             return {
-                title: webResultItem.key,
+                title: useSymbolSegmentationArrayText(webResultItem.value),
                 key: webResultItem.key + idx,
-                subtitle: useSymbolSegmentationArrayText(webResultItem.value),
+                subtitle: webResultItem.key,
                 icon: Icon.Globe,
                 color: Color.Orange
             }
