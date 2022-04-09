@@ -173,7 +173,7 @@ export default function () {
 
                     return freshCopyModeState
                 })
-            }, 800)
+            }, 400)
             return
         }
 
@@ -185,6 +185,7 @@ export default function () {
             isLoading={isLoadingState}
             searchBarPlaceholder={"Type text"}
             onSearchTextChange={onSearch}
+
             actions={
                 <ActionPanel>
                     <ActionFeedback />

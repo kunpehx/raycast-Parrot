@@ -62,8 +62,8 @@ export function reformatTranslateResult(data: ITranslateResult): ITranslateRefor
                 title: text,
                 key: text + idx,
                 icon: Icon.Text,
-                phonetic: data.basic?.phonetic ? "["+data.basic?.phonetic+"]" : "",
-                color:Color.Magenta
+                phonetic: data.basic?.phonetic ? "[" + data.basic?.phonetic + "]" : "",
+                color: Color.Magenta
             }
         }),
     })
@@ -74,13 +74,13 @@ export function reformatTranslateResult(data: ITranslateResult): ITranslateRefor
         data.basic?.explains[0] === data?.translation[0] && data.basic.explains.shift()
     }
 
-    if (data.basic?.phonetic && data.basic?.["uk-phonetic"] && data.basic?.["us-phonetic"]) {
+    if (data.basic?.["us-phonetic"] && (data.basic?.["uk-phonetic"])) {
         reformatData.push({
             type: "Phonetic",
             hint: "音标",
             children: data.translation?.map((text, idx) => {
                 return {
-                    title: data.basic?.["uk-phonetic"]+"",
+                    title: data.basic?.["uk-phonetic"] + "",
                     key: text + idx,
                     icon: Icon.Message,
                     color: Color.Blue,
@@ -91,11 +91,25 @@ export function reformatTranslateResult(data: ITranslateResult): ITranslateRefor
         reformatData.push({
             children: data.translation?.map((text, idx) => {
                 return {
-                    title: data.basic?.["us-phonetic"]+"",
+                    title: data.basic?.["us-phonetic"] + "",
                     key: text + idx,
                     icon: Icon.Message,
                     color: Color.Blue,
                     accessoryTitle: "美国",
+                }
+            }),
+        });
+    } else if (data.basic?.phonetic) {
+        reformatData.push({
+            type: "Phonetic",
+            hint: "音标",
+            children: data.translation?.map((text, idx) => {
+                return {
+                    title: data.basic?.phonetic + "",
+                    key: text + idx,
+                    icon: Icon.Message,
+                    color: Color.Blue,
+                    accessoryTitle: "国语[拼音]",
                 }
             }),
         });
@@ -107,8 +121,8 @@ export function reformatTranslateResult(data: ITranslateResult): ITranslateRefor
         children: data.basic?.explains?.map((text, idx) => {
             return {
                 title: text,
-                key: text + idx ,
-                icon:Icon.TextDocument,
+                key: text + idx,
+                icon: Icon.TextDocument,
                 color: Color.Red
             }
         }),
@@ -122,7 +136,7 @@ export function reformatTranslateResult(data: ITranslateResult): ITranslateRefor
                 title: webResultItem.key,
                 key: webResultItem.key + idx,
                 subtitle: useSymbolSegmentationArrayText(webResultItem.value),
-                icon:Icon.Globe,
+                icon: Icon.Globe,
                 color: Color.Orange
             }
         }),
@@ -141,12 +155,13 @@ export function requestYoudaoAPI(queryText: string, targetLanguage: string): Pro
     const salt = Date.now();
     const sign = generateSign(q, salt, APP_ID, APP_KEY);
     const queryParam = querystring.stringify({
-        q: q,
-        appKey: APP_ID,
-        from: "auto",
-        to: targetLanguage,
-        salt,
-        sign }
+            q: q,
+            appKey: APP_ID,
+            from: "auto",
+            to: targetLanguage,
+            salt,
+            sign
+        }
     );
 
 
@@ -182,14 +197,14 @@ export function useSymbolSegmentationArrayText(textArray: string[]): string {
     return textArray.join("；")
 }
 
-export function defineLanguage(l:string):string {
+export function defineLanguage(l: string): string {
     let fromLanguage = ""
     let toLanguage = ""
     let language = ""
     const [from, to] = l.split("2") // en2zh
 
 
-    LANGUAGE_LIST.map((item,index) => {
+    LANGUAGE_LIST.map((item, index) => {
         if (item.languageId == from) {
             fromLanguage = item.languageTitle
         }
